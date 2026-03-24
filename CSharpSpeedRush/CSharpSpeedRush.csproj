@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Target .NET 6 with WPF support -->
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>CSharpSpeedRush</AssemblyName>
+    <RootNamespace>CSharpSpeedRush</RootNamespace>
+    <!-- Generate XML documentation file for the XML docs we wrote -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DocumentationFile>CSharpSpeedRush.xml</DocumentationFile>
+    <!-- Suppress warnings about missing XML docs on public members we didn't doc -->
+    <NoWarn>$(NoWarn);1591</NoWarn>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Tell MSTest this is a test project -->
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- MSTest framework packages -->
+    <PackageReference Include="Microsoft.NET.Test.Sdk"           Version="17.5.0" />
+    <PackageReference Include="MSTest.TestAdapter"               Version="3.0.2"  />
+    <PackageReference Include="MSTest.TestFramework"             Version="3.0.2"  />
+    <PackageReference Include="coverlet.collector"               Version="6.0.0"  />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Reference the main game project so tests can use Car, RaceManager, etc. -->
+    <ProjectReference Include="..\CSharpSpeedRush\CSharpSpeedRush.csproj" />
+  </ItemGroup>
+
+</Project>
