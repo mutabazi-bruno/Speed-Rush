@@ -1,0 +1,356 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CSharpSpeedRush</name>
+    </assembly>
+    <members>
+        <member name="T:CSharpSpeedRush.App">
+            <summary>
+            The entry point of the WPF application.
+            WPF automatically looks for this class and calls its constructor
+            which in turn opens the StartupUri window (MainWindow).
+            </summary>
+            <summary>
+            App
+            </summary>
+        </member>
+        <member name="M:CSharpSpeedRush.App.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="M:CSharpSpeedRush.App.Main">
+            <summary>
+            Application Entry Point.
+            </summary>
+        </member>
+        <member name="T:CSharpSpeedRush.Logic.RaceManager">
+            <summary>
+            Central game controller. Holds car, track, time, and turn state.
+            Processes player actions and updates state. UI calls this layer only.
+            </summary>
+        </member>
+        <member name="F:CSharpSpeedRush.Logic.RaceManager.StartingTime">
+            <summary>How many time units the player starts with.</summary>
+        </member>
+        <member name="F:CSharpSpeedRush.Logic.RaceManager.TimeForSpeedUp">
+            <summary>Time cost per turn when speeding up.</summary>
+        </member>
+        <member name="F:CSharpSpeedRush.Logic.RaceManager.TimeForMaintain">
+            <summary>Time cost per turn when maintaining speed.</summary>
+        </member>
+        <member name="F:CSharpSpeedRush.Logic.RaceManager.TimeForPitStop">
+            <summary>Time cost per turn for a pit stop (slower, but you get fuel).</summary>
+        </member>
+        <member name="F:CSharpSpeedRush.Logic.RaceManager.PitStopFuelAmount">
+            <summary>How much fuel a pit stop adds to the tank.</summary>
+        </member>
+        <member name="F:CSharpSpeedRush.Logic.RaceManager.SpeedUpMultiplier">
+            <summary>Speed multiplier when the player chooses "Speed Up".</summary>
+        </member>
+        <member name="F:CSharpSpeedRush.Logic.RaceManager.MaintainMultiplier">
+            <summary>Speed multiplier when the player chooses "Maintain Speed".</summary>
+        </member>
+        <member name="P:CSharpSpeedRush.Logic.RaceManager.SelectedCar">
+            <summary>The car the player selected before the race.</summary>
+        </member>
+        <member name="P:CSharpSpeedRush.Logic.RaceManager.RaceTrack">
+            <summary>The track the race is being run on.</summary>
+        </member>
+        <member name="P:CSharpSpeedRush.Logic.RaceManager.TimeRemaining">
+            <summary>Time units remaining. Counts down each turn.</summary>
+        </member>
+        <member name="P:CSharpSpeedRush.Logic.RaceManager.CurrentTurn">
+            <summary>Which turn we are on (1, 2, 3 ...).</summary>
+        </member>
+        <member name="P:CSharpSpeedRush.Logic.RaceManager.Status">
+            <summary>Current race status (InProgress, Finished, etc.).</summary>
+        </member>
+        <member name="P:CSharpSpeedRush.Logic.RaceManager.TurnHistory">
+            <summary>
+            Queue of TurnResult structs. FIFO order for turn history.
+            </summary>
+        </member>
+        <member name="P:CSharpSpeedRush.Logic.RaceManager.AvailableCars">
+            <summary>
+            Available cars for selection. List allows ordered display and index lookup.
+            </summary>
+        </member>
+        <member name="M:CSharpSpeedRush.Logic.RaceManager.#ctor">
+            <summary>
+            Sets up the RaceManager and populates the list of available cars.
+            Call StartRace() after the player picks a car to begin.
+            </summary>
+        </member>
+        <member name="M:CSharpSpeedRush.Logic.RaceManager.StartRace(CSharpSpeedRush.Models.Car)">
+            <summary>
+            Starts the race with the car the player chose.
+            Resets all state so the player can restart without creating a new manager.
+            </summary>
+            <param name="car">The car the player selected from AvailableCars.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown if no car is provided.</exception>
+        </member>
+        <member name="M:CSharpSpeedRush.Logic.RaceManager.ProcessTurn(CSharpSpeedRush.Models.PlayerAction)">
+            <summary>
+            Processes one turn of the game based on the player's chosen action.
+            This is the core game loop step – called every time the player clicks a button.
+            </summary>
+            <param name="action">What the player wants to do this turn.</param>
+            <returns>A TurnResult struct describing what happened.</returns>
+            <exception cref="T:System.InvalidOperationException">Thrown if the race is not in progress.</exception>
+        </member>
+        <member name="M:CSharpSpeedRush.Logic.RaceManager.UpdateRaceStatus">
+            <summary>
+            Checks all end conditions after every turn.
+            Updates Status so the UI knows whether to show game-over screens.
+            </summary>
+        </member>
+        <member name="T:CSharpSpeedRush.Models.Car">
+            <summary>
+            Represents a racing car with speed, fuel consumption, and tank capacity.
+            </summary>
+        </member>
+        <member name="P:CSharpSpeedRush.Models.Car.Name">
+            <summary>The display name of the car (e.g. "Rocket Racer").</summary>
+        </member>
+        <member name="P:CSharpSpeedRush.Models.Car.SpeedPerTurn">
+            <summary>
+            How many distance units this car covers each turn when going at full speed.
+            Higher = faster, but burns more fuel.
+            </summary>
+        </member>
+        <member name="P:CSharpSpeedRush.Models.Car.FuelConsumptionPerTurn">
+            <summary>
+            How many fuel units this car burns each turn at full speed.
+            Lower = more efficient.
+            </summary>
+        </member>
+        <member name="P:CSharpSpeedRush.Models.Car.FuelCapacity">
+            <summary>
+            The maximum amount of fuel this car can hold.
+            Larger tank = fewer pit stops needed.
+            </summary>
+        </member>
+        <member name="P:CSharpSpeedRush.Models.Car.CurrentFuel">
+            <summary>Current fuel level. Starts full.</summary>
+        </member>
+        <member name="M:CSharpSpeedRush.Models.Car.#ctor(System.String,System.Double,System.Double,System.Double)">
+            <summary>
+            Creates a new car with the given stats and starts it with a full tank.
+            </summary>
+            <param name="name">Car's display name.</param>
+            <param name="speedPerTurn">Distance covered per turn at full speed.</param>
+            <param name="fuelConsumptionPerTurn">Fuel burned per turn at full speed.</param>
+            <param name="fuelCapacity">Maximum fuel the tank can hold.</param>
+        </member>
+        <member name="M:CSharpSpeedRush.Models.Car.BurnFuel(System.Double)">
+            <summary>
+            Burns fuel based on the speed multiplier the player chose.
+            For example, a multiplier of 0.5 = half speed = half fuel used.
+            </summary>
+            <param name="speedMultiplier">A value between 0 and 1 representing speed level.</param>
+            <exception cref="T:System.InvalidOperationException">Thrown when there is not enough fuel to drive.</exception>
+        </member>
+        <member name="M:CSharpSpeedRush.Models.Car.Refuel(System.Double)">
+            <summary>
+            Refuels the car during a pit stop. Adds a fixed amount of fuel.
+            Cannot exceed the tank's maximum capacity.
+            </summary>
+            <param name="amount">How many fuel units to add.</param>
+            <exception cref="T:System.ArgumentException">Thrown if amount is negative.</exception>
+        </member>
+        <member name="P:CSharpSpeedRush.Models.Car.FuelPercentage">
+            <summary>
+            Returns the fuel level as a percentage (0–100) so we can show it on a progress bar.
+            </summary>
+        </member>
+        <member name="M:CSharpSpeedRush.Models.Car.ToString">
+            <summary>
+            Returns a friendly string showing the car's key stats.
+            Used in the car selection screen.
+            </summary>
+        </member>
+        <member name="T:CSharpSpeedRush.Models.PlayerAction">
+            <summary>The three actions a player can take on their turn.</summary>
+        </member>
+        <member name="F:CSharpSpeedRush.Models.PlayerAction.SpeedUp">
+            <summary>Go faster – uses more fuel but covers more distance.</summary>
+        </member>
+        <member name="F:CSharpSpeedRush.Models.PlayerAction.MaintainSpeed">
+            <summary>Keep the current pace – balanced fuel and distance.</summary>
+        </member>
+        <member name="F:CSharpSpeedRush.Models.PlayerAction.PitStop">
+            <summary>Pull into the pit lane to refuel – no distance gained this turn.</summary>
+        </member>
+        <member name="T:CSharpSpeedRush.Models.RaceStatus">
+            <summary>
+            Tracks whether the race is still going or has finished (and why).
+            The UI uses this to decide what message to show the player.
+            </summary>
+        </member>
+        <member name="F:CSharpSpeedRush.Models.RaceStatus.NotStarted">
+            <summary>Race has not started yet.</summary>
+        </member>
+        <member name="F:CSharpSpeedRush.Models.RaceStatus.InProgress">
+            <summary>Race is currently in progress.</summary>
+        </member>
+        <member name="F:CSharpSpeedRush.Models.RaceStatus.Finished">
+            <summary>Player finished all laps successfully.</summary>
+        </member>
+        <member name="F:CSharpSpeedRush.Models.RaceStatus.OutOfFuel">
+            <summary>Car ran out of fuel before finishing – game over.</summary>
+        </member>
+        <member name="F:CSharpSpeedRush.Models.RaceStatus.TimeUp">
+            <summary>Clock ran out before all laps were completed – game over.</summary>
+        </member>
+        <member name="T:CSharpSpeedRush.Models.TurnResult">
+            <summary>
+            A snapshot of everything that happened during one game turn.
+            Stored in the turn history queue so the player can review their race.
+            </summary>
+        </member>
+        <member name="F:CSharpSpeedRush.Models.TurnResult.TurnNumber">
+            <summary>Which turn number this was (1, 2, 3 ...).</summary>
+        </member>
+        <member name="F:CSharpSpeedRush.Models.TurnResult.Action">
+            <summary>What action the player chose on this turn.</summary>
+        </member>
+        <member name="F:CSharpSpeedRush.Models.TurnResult.DistanceCovered">
+            <summary>How far the car moved this turn (in distance units).</summary>
+        </member>
+        <member name="F:CSharpSpeedRush.Models.TurnResult.FuelBurned">
+            <summary>How much fuel was burned this turn.</summary>
+        </member>
+        <member name="F:CSharpSpeedRush.Models.TurnResult.LapAfterTurn">
+            <summary>What lap the car was on after this turn.</summary>
+        </member>
+        <member name="F:CSharpSpeedRush.Models.TurnResult.Message">
+            <summary>A human-friendly summary of this turn's events.</summary>
+        </member>
+        <member name="T:CSharpSpeedRush.Models.Track">
+            <summary>
+            Represents the race track. Tracks distance driven and lap count.
+            </summary>
+        </member>
+        <member name="F:CSharpSpeedRush.Models.Track.LapDistance">
+            <summary>
+            The length of one lap in distance units.
+            The player must accumulate this much distance to finish a lap.
+            </summary>
+        </member>
+        <member name="P:CSharpSpeedRush.Models.Track.TotalLaps">
+            <summary>Total number of laps in this race (always 5 as per the spec).</summary>
+        </member>
+        <member name="P:CSharpSpeedRush.Models.Track.CurrentLap">
+            <summary>Which lap the player is currently on (starts at 1).</summary>
+        </member>
+        <member name="P:CSharpSpeedRush.Models.Track.DistanceInCurrentLap">
+            <summary>
+            How far the car has travelled within the current lap (0–100).
+            Once this reaches 100, a new lap begins.
+            </summary>
+        </member>
+        <member name="P:CSharpSpeedRush.Models.Track.IsRaceComplete">
+            <summary>True when the player has finished all laps.</summary>
+        </member>
+        <member name="M:CSharpSpeedRush.Models.Track.#ctor(System.Int32)">
+            <summary>
+            Creates a track with the specified number of laps.
+            </summary>
+            <param name="totalLaps">How many laps the race has. Defaults to 5.</param>
+        </member>
+        <member name="M:CSharpSpeedRush.Models.Track.AdvanceDistance(System.Double)">
+            <summary>
+            Moves the car forward by the given distance.
+            Automatically completes laps when 100 units are reached.
+            </summary>
+            <param name="distance">Distance to add this turn.</param>
+            <returns>How many laps were completed during this move (usually 0 or 1).</returns>
+        </member>
+        <member name="P:CSharpSpeedRush.Models.Track.LapProgressPercent">
+            <summary>
+            Returns the current lap progress as a 0–100 percentage.
+            Used by the progress bar in the UI.
+            </summary>
+        </member>
+        <member name="M:CSharpSpeedRush.Models.Track.GetProgressBar(System.Int32)">
+            <summary>
+            Builds a visual text progress bar like [=====>    ] to show lap progress.
+            This is the optional textual progress indicator from the spec.
+            </summary>
+            <param name="width">How many characters wide the bar should be.</param>
+        </member>
+        <member name="M:CSharpSpeedRush.Models.Track.ToString">
+            <summary>Returns a short summary like "Lap 2/5".</summary>
+        </member>
+        <member name="T:CSharpSpeedRush.Views.MainWindow">
+            <summary>
+            Main window code-behind. Connects UI events to RaceManager.
+            </summary>
+            <summary>
+            MainWindow
+            </summary>
+        </member>
+        <member name="F:CSharpSpeedRush.Views.MainWindow._raceManager">
+            <summary>
+            The game logic engine. All rules live in here, not in this file.
+            </summary>
+        </member>
+        <member name="M:CSharpSpeedRush.Views.MainWindow.#ctor">
+            <summary>
+            Initializes window and car selection ComboBox.
+            </summary>
+        </member>
+        <member name="M:CSharpSpeedRush.Views.MainWindow.StartButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Called when the player clicks "START RACE".
+            Grabs the selected car and tells the RaceManager to begin.
+            </summary>
+        </member>
+        <member name="M:CSharpSpeedRush.Views.MainWindow.SpeedUpButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>Handles the "Speed Up" button click.</summary>
+        </member>
+        <member name="M:CSharpSpeedRush.Views.MainWindow.MaintainButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>Handles the "Maintain Speed" button click.</summary>
+        </member>
+        <member name="M:CSharpSpeedRush.Views.MainWindow.PitStopButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>Handles the "Pit Stop" button click.</summary>
+        </member>
+        <member name="M:CSharpSpeedRush.Views.MainWindow.RestartButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Resets the game so the player can try again without restarting the app.
+            </summary>
+        </member>
+        <member name="M:CSharpSpeedRush.Views.MainWindow.HandleAction(CSharpSpeedRush.Models.PlayerAction)">
+            <summary>
+            Handles Speed Up, Maintain Speed, and Pit Stop. Calls RaceManager and updates UI.
+            </summary>
+            <param name="action">The action chosen by the player.</param>
+        </member>
+        <member name="M:CSharpSpeedRush.Views.MainWindow.RefreshUI">
+            <summary>
+            Updates all labels and progress bars from RaceManager state.
+            </summary>
+        </member>
+        <member name="M:CSharpSpeedRush.Views.MainWindow.HandleRaceEnd">
+            <summary>
+            Handles race end: shows message and disables action buttons.
+            </summary>
+        </member>
+        <member name="M:CSharpSpeedRush.Views.MainWindow.SetActionButtonsEnabled(System.Boolean)">
+            <summary>
+            Enables or disables all action buttons.
+            </summary>
+        </member>
+        <member name="M:CSharpSpeedRush.Views.MainWindow.CarComboBox_SelectionChanged(System.Object,System.Windows.Controls.SelectionChangedEventArgs)">
+            <summary>
+            Updates status preview when car selection changes.
+            </summary>
+        </member>
+        <member name="M:CSharpSpeedRush.Views.MainWindow.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+    </members>
+</doc>
