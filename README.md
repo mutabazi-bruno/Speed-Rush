@@ -75,14 +75,7 @@ CSharpSpeedRush/
 ├── CSharpSpeedRush.Tests/
 │   ├── RaceManagerTests.cs
 │   └── CSharpSpeedRush.Tests.csproj
-└── docs/
-    ├── Architecture.md
-    ├── TestingStrategy.md
-    ├── RequirementChecklist.md
-    ├── CodeGuide.md
-    ├── VideoDemoScript.md
-    ├── PresentationScript.md
-    └── SubmissionSummary.md
+
 ```
 
 ## Documentation
