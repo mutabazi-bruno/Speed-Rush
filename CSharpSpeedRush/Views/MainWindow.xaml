@@ -1,0 +1,261 @@
+<Window x:Class="CSharpSpeedRush.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="C# Speed Rush 🏎️" Height="620" Width="700"
+        Background="#1a1a2e" ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen">
+
+    <!-- All colours are defined here so they're easy to change -->
+    <Window.Resources>
+        <!-- Neon green used for active/important labels -->
+        <SolidColorBrush x:Key="NeonGreen" Color="#39ff14"/>
+        <!-- Bright red for danger / game-over messages -->
+        <SolidColorBrush x:Key="DangerRed" Color="#ff4444"/>
+        <!-- Gold for lap counter -->
+        <SolidColorBrush x:Key="Gold" Color="#ffd700"/>
+
+        <!-- Shared style for all action buttons -->
+        <Style x:Key="ActionButton" TargetType="Button">
+            <Setter Property="Foreground"   Value="White"/>
+            <Setter Property="FontSize"     Value="14"/>
+            <Setter Property="FontWeight"   Value="Bold"/>
+            <Setter Property="Height"       Value="45"/>
+            <Setter Property="Margin"       Value="5"/>
+            <Setter Property="Cursor"       Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <!-- Shared style for status label headings -->
+        <Style x:Key="LabelHeading" TargetType="TextBlock">
+            <Setter Property="Foreground"  Value="#aaaaaa"/>
+            <Setter Property="FontSize"    Value="11"/>
+            <Setter Property="Margin"      Value="0,0,0,2"/>
+        </Style>
+
+        <!-- Shared style for status label values -->
+        <Style x:Key="LabelValue" TargetType="TextBlock">
+            <Setter Property="Foreground"  Value="White"/>
+            <Setter Property="FontSize"    Value="18"/>
+            <Setter Property="FontWeight"  Value="Bold"/>
+        </Style>
+
+        <!-- ComboBox dropdown styling to match the dark UI -->
+        <Style x:Key="CarComboBoxItemStyle" TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="#16213e"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Padding" Value="8,2"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Style.Triggers>
+                <!-- Selected item -->
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#39ff14"/>
+                    <Setter Property="Foreground" Value="#1a1a2e"/>
+                </Trigger>
+                <!-- Hover highlight -->
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#22304d"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <!-- Root container: a dark panel with some padding -->
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>   <!-- Title bar -->
+            <RowDefinition Height="Auto"/>   <!-- Car selection section -->
+            <RowDefinition Height="Auto"/>   <!-- Status row -->
+            <RowDefinition Height="Auto"/>   <!-- Progress bars -->
+            <RowDefinition Height="*"/>      <!-- Log / history area -->
+            <RowDefinition Height="Auto"/>   <!-- Action buttons -->
+        </Grid.RowDefinitions>
+
+        <!-- ── TITLE ─────────────────────────────────────────────── -->
+        <TextBlock Grid.Row="0"
+                   Text="🏎️  C# Speed Rush"
+                   Foreground="{StaticResource NeonGreen}"
+                   FontSize="28" FontWeight="Black"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,15"/>
+
+        <!-- ── CAR SELECTION ─────────────────────────────────────── -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal"
+                    HorizontalAlignment="Center" Margin="0,0,0,15">
+
+            <TextBlock Text="Select your car:"
+                       Foreground="White" FontSize="14"
+                       VerticalAlignment="Center" Margin="0,0,10,0"/>
+
+            <!-- ComboBox: populated from code-behind -->
+            <ComboBox x:Name="CarComboBox"
+                      Width="300" Height="32"
+                      Background="#16213e" Foreground="White"
+                      FontSize="13"
+                      SelectionChanged="CarComboBox_SelectionChanged">
+                <ComboBox.ItemContainerStyle>
+                    <StaticResource ResourceKey="CarComboBoxItemStyle"/>
+                </ComboBox.ItemContainerStyle>
+            </ComboBox>
+
+            <Button Content="START RACE 🚦"
+                    x:Name="StartButton"
+                    Style="{StaticResource ActionButton}"
+                    Background="#39ff14" Foreground="#1a1a2e"
+                    Width="130" Margin="10,0,0,0"
+                    Click="StartButton_Click"/>
+        </StackPanel>
+
+        <!-- ── STATUS ROW (lap / fuel / time / speed) ────────────── -->
+        <Border Grid.Row="2" Background="#16213e" CornerRadius="8" Padding="15,10" Margin="0,0,0,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Current Lap -->
+                <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                    <TextBlock Text="LAP" Style="{StaticResource LabelHeading}" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="LapLabel"
+                               Text="–/5"
+                               Foreground="{StaticResource Gold}"
+                               FontSize="22" FontWeight="Bold"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Fuel -->
+                <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                    <TextBlock Text="FUEL" Style="{StaticResource LabelHeading}" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="FuelLabel"
+                               Text="–"
+                               Foreground="{StaticResource NeonGreen}"
+                               FontSize="22" FontWeight="Bold"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Time Remaining -->
+                <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                    <TextBlock Text="TIME LEFT" Style="{StaticResource LabelHeading}" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="TimeLabel"
+                               Text="–"
+                               Foreground="White"
+                               FontSize="22" FontWeight="Bold"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Speed / Status -->
+                <StackPanel Grid.Column="3" HorizontalAlignment="Center">
+                    <TextBlock Text="STATUS" Style="{StaticResource LabelHeading}" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="StatusLabel"
+                               Text="Waiting"
+                               Foreground="#aaaaaa"
+                               FontSize="16" FontWeight="Bold"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ── PROGRESS BARS ─────────────────────────────────────── -->
+        <StackPanel Grid.Row="3" Margin="0,0,0,12">
+            <!-- Animated race progression -->
+            <Canvas x:Name="RaceCanvas"
+                    Height="70"
+                    HorizontalAlignment="Center"
+                    Width="640"
+                    Background="#0f3460"
+                    Margin="0,0,0,10">
+                <Line X1="10" Y1="35" X2="630" Y2="35" Stroke="#666" StrokeThickness="2" StrokeDashArray="6 4"/>
+
+                <!-- Player marker (player color is set in code-behind) -->
+                <Ellipse x:Name="PlayerMarker"
+                         Width="12" Height="12"
+                         Fill="#39ff14"
+                         Stroke="Black"
+                         StrokeThickness="2"/>
+                <!-- Opponents markers (different colors) -->
+                <Ellipse x:Name="Opponent1Marker" Width="12" Height="12" Fill="#4fc3f7"/>
+                <Ellipse x:Name="Opponent2Marker" Width="12" Height="12" Fill="#f5c542"/>
+            </Canvas>
+
+            <!-- Fuel progress bar -->
+            <TextBlock Text="Fuel Level" Foreground="#aaaaaa" FontSize="11" Margin="2,0,0,3"/>
+            <ProgressBar x:Name="FuelProgressBar"
+                         Height="16" Minimum="0" Maximum="100" Value="100"
+                         Background="#333" Foreground="{StaticResource NeonGreen}"
+                         Margin="0,0,0,8"/>
+
+            <!-- Time progress bar -->
+            <TextBlock Text="Time Remaining" Foreground="#aaaaaa" FontSize="11" Margin="2,0,0,3"/>
+            <ProgressBar x:Name="TimeProgressBar"
+                         Height="16" Minimum="0" Maximum="90" Value="90"
+                         Background="#333" Foreground="#4fc3f7"
+                         Margin="0,0,0,8"/>
+
+            <!-- Lap distance progress bar -->
+            <TextBlock Text="Lap Progress" Foreground="#aaaaaa" FontSize="11" Margin="2,0,0,3"/>
+            <TextBlock x:Name="ProgressBarText"
+                       Text="[                    >]"
+                       Foreground="{StaticResource Gold}"
+                       FontFamily="Courier New" FontSize="13"
+                       Margin="2,0,0,3"/>
+        </StackPanel>
+
+        <!-- ── TURN LOG ───────────────────────────────────────────── -->
+        <Border Grid.Row="4" Background="#0f3460" CornerRadius="8"
+                Padding="10" Margin="0,0,0,12">
+            <ScrollViewer x:Name="LogScrollViewer" VerticalScrollBarVisibility="Auto">
+                <TextBlock x:Name="LogTextBlock"
+                           Foreground="#cccccc"
+                           FontSize="12"
+                           FontFamily="Courier New"
+                           TextWrapping="Wrap"
+                           Text="Select a car and press START RACE to begin!"/>
+            </ScrollViewer>
+        </Border>
+
+        <!-- ── ACTION BUTTONS ────────────────────────────────────── -->
+        <Grid Grid.Row="5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0"
+                    x:Name="SpeedUpButton"
+                    Content="🚀 Speed Up"
+                    Style="{StaticResource ActionButton}"
+                    Background="#e74c3c"
+                    Click="SpeedUpButton_Click"
+                    IsEnabled="False"/>
+
+            <Button Grid.Column="1"
+                    x:Name="MaintainButton"
+                    Content="🏎️  Maintain"
+                    Style="{StaticResource ActionButton}"
+                    Background="#2980b9"
+                    Click="MaintainButton_Click"
+                    IsEnabled="False"/>
+
+            <Button Grid.Column="2"
+                    x:Name="PitStopButton"
+                    Content="⛽ Pit Stop"
+                    Style="{StaticResource ActionButton}"
+                    Background="#27ae60"
+                    Click="PitStopButton_Click"
+                    IsEnabled="False"/>
+
+            <Button Grid.Column="3"
+                    x:Name="RestartButton"
+                    Content="🔄 Restart"
+                    Style="{StaticResource ActionButton}"
+                    Background="#8e44ad"
+                    Click="RestartButton_Click"
+                    IsEnabled="False"/>
+        </Grid>
+    </Grid>
+</Window>
