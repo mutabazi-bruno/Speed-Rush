@@ -1,0 +1,11 @@
+bin/
+obj/
+docs/
+.vs/
+*.user
+*.suo
+*.exe
+*.dll
+*.pdb
+*.nupkg
+TestResults/
