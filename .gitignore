@@ -8,4 +8,4 @@ docs/
 *.dll
 *.pdb
 *.nupkg
-TestResults/
+
